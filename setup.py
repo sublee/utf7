@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
+r"""
 utf7
 ~~~~
 
-Encoder/decoder for an UTF-7 encoded unsigned integer used by
-```BinaryWriter.Write(String)`` <http://msdn.microsoft.com/en-us/library/
-yzxa6408.aspx>`_ in Microsoft .NET Framework.
+Encoder/decoder of an UTF-7 encoded unsigned integer. UTF-7 uint is used for
+`BinaryWriter.Write(String) <http://msdn.microsoft.com/en-us/library/
+yzxa6408.aspx>`_ in `Microsoft .NET Framework <http://www.microsoft.com/net>`_.
 
 .. sourcecode:: pycon
 
    >>> utf7.packb(65536)
-   b'\x80\x80\x04'
+   '\x80\x80\x04'
 
 Links
 `````
