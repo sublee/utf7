@@ -54,3 +54,5 @@ def test_aliases():
     assert utf7.dumps is utf7.packb
     assert utf7.load is utf7.unpack
     assert utf7.loads is utf7.unpackb
+    assert utf7.encode is utf7.packb
+    assert utf7.decode is utf7.unpackb

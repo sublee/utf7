@@ -18,14 +18,16 @@ except ImportError:
 
 
 __version__ = '0.9.2'
-__all__ = [
-    'pack', 'unpack', 'packb', 'unpackb', 'dump', 'dumps', 'load', 'loads']
+__all__ = ['pack', 'unpack', 'packb', 'unpackb',
+           'dump', 'dumps', 'load', 'loads', 'encode', 'decode']
 
 
 def pack(num, buf):
     """Encodes the unsigned integer by UTF-7 to the buffer."""
+    if num < 0:
+        raise ValueError('Cannot pack negative number')
     array = []
-    while True:
+    while num:
         byte = num & 0x7f
         num >>= 7
         if num:
@@ -64,7 +66,10 @@ def unpackb(packed):
     return unpack(BytesIO(packed))
 
 
+# aliases
 dump = pack
 dumps = packb
 load = unpack
 loads = unpackb
+encode = packb
+decode = unpackb

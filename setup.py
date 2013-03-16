@@ -40,6 +40,18 @@ def run_tests(self):
 test.run_tests = run_tests
 
 
+# cython
+try:
+    from Cython.Distutils import build_ext
+except ImportError:
+    ext_modules = []
+    cmdclass = {}
+else:
+    from setuptools.extension import Extension
+    ext_modules = [Extension('utf7', ['utf7.py'])]
+    cmdclass = {'build_ext': build_ext}
+
+
 setup(
     name='utf7',
     version=version,
@@ -51,6 +63,8 @@ setup(
     long_description=__doc__,
     platforms='any',
     py_modules=['utf7'],
+    ext_modules=ext_modules,
+    cmdclass=cmdclass,
     classifiers=['Development Status :: 4 - Beta',
                  'Intended Audience :: Developers',
                  'License :: OSI Approved :: BSD License',
