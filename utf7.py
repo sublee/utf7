@@ -17,27 +17,30 @@ except ImportError:
     from StringIO import StringIO as BytesIO
 
 
-__version__ = '0.9.0'
-__all__ = ['packb', 'pack', 'unpackb', 'unpack', 'loads', 'load', 'dumps',
-           'dump']
+__version__ = '0.9.1'
+__all__ = [
+    'packb', 'pack', 'unpackb', 'unpack', 'dumps', 'dump', 'loads', 'load']
 
 
 def packb(num):
-    buf = []
+    buf = BytesIO()
+    pack(num, buf)
+    return buf.getvalue()
+
+
+def pack(num, buf):
+    array = []
     while True:
         byte = num & 0xff
         num >>= 7
         if num:
-            buf.append(byte | 0x80)
+            array.append(byte | 0x80)
         else:
-            buf.append(byte)
+            array.append(byte)
             break
-    size = len(buf)
-    return struct.pack('<%dB' % size, *buf)
-
-
-def pack(num, buf):
-    buf.write(packb(num))
+    size = len(array)
+    buf.write(struct.pack('<%dB' % size, *array))
+    return size
 
 
 def unpackb(packed):
@@ -58,7 +61,7 @@ def unpack(buf):
     return num
 
 
-loads = packb
-load = pack
-dumps = unpackb
-dump = unpack
+dumps = packb
+dump = pack
+loads = unpackb
+load = unpack
