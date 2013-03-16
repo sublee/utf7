@@ -20,7 +20,7 @@ Links
   <http://github.com/sublee/utf7/zipball/master#egg=utf7-dev>`_
 
 """
-from __future__ import with_statement
+from __future__ import unicode_literals, with_statement
 import re
 from setuptools import setup
 from setuptools.command.test import test
@@ -48,7 +48,7 @@ except ImportError:
     ext_modules = []
     cmdclass = {}
 else:
-    ext_modules = [Extension('_utf7', ['utf7.py'])]
+    ext_modules = [Extension(b'_utf7', [b'utf7.py'])]
     cmdclass = {'build_ext': build_ext}
 
 
@@ -59,6 +59,8 @@ setup(
     author='Heungsub Lee',
     author_email=re.sub('((sub).)(.*)', r'\2@\1.\3', 'sublee'),
     url='https://github.com/sublee/utf7',
+    download_url='utf7'.join([
+        'http://github.com/sublee/', '/zipball/master#egg=', '-dev']),
     description='UTF-7 encoded unsigned integer',
     long_description=__doc__,
     platforms='any',
@@ -71,7 +73,6 @@ setup(
                  'Operating System :: OS Independent',
                  'Programming Language :: Python',
                  'Programming Language :: Python :: 2',
-                 'Programming Language :: Python :: 2.5',
                  'Programming Language :: Python :: 2.6',
                  'Programming Language :: Python :: 2.7',
                  'Programming Language :: Python :: 3',
@@ -79,7 +80,6 @@ setup(
                  'Programming Language :: Python :: 3.2',
                  'Programming Language :: Python :: 3.3',
                  'Programming Language :: Python :: Implementation :: CPython',
-                 'Programming Language :: Python :: Implementation :: Jython',
                  'Programming Language :: Python :: Implementation :: PyPy'],
     install_requires=['distribute'],
     test_suite='utf7tests',

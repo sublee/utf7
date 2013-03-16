@@ -11,11 +11,14 @@
 cimport cython
 
 
-@cython.locals(array=list, byte=int, size=size_t)
+ctypedef unsigned char byte_t
+
+
+@cython.locals(array=bytearray, byte=byte_t, size=size_t)
 cpdef size_t pack(unsigned int num, buf)
 
 
-@cython.locals(num=int, shift=int, byte=int)
+@cython.locals(num=unsigned int, shift=size_t, byte=byte_t)
 cpdef unsigned int unpack(buf)
 
 

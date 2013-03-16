@@ -10,7 +10,6 @@
     :copyright: (c) 2013 by Heungsub Lee
     :license: BSD, see LICENSE for more details.
 """
-import struct
 try:
     from io import BytesIO
 except ImportError:
@@ -26,7 +25,7 @@ def pack(num, buf):
     """Encodes the unsigned integer by UTF-7 to the buffer."""
     if num < 0:
         raise OverflowError('Cannot pack negative number')
-    array = []
+    array = bytearray()
     while num:
         byte = num & 0x7f
         num >>= 7
@@ -36,9 +35,7 @@ def pack(num, buf):
         else:
             array.append(byte)
             break
-    size = len(array)
-    buf.write(struct.pack('<%dB' % size, *array))
-    return size
+    return buf.write(array)
 
 
 def unpack(buf):
