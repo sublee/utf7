@@ -17,23 +17,19 @@ except ImportError:
     from StringIO import StringIO as BytesIO
 
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 __all__ = [
-    'packb', 'pack', 'unpackb', 'unpack', 'dumps', 'dump', 'loads', 'load']
-
-
-def packb(num):
-    buf = BytesIO()
-    pack(num, buf)
-    return buf.getvalue()
+    'pack', 'unpack', 'packb', 'unpackb', 'dump', 'dumps', 'load', 'loads']
 
 
 def pack(num, buf):
+    """Encodes the unsigned integer by UTF-7 to the buffer."""
     array = []
     while True:
-        byte = num & 0xff
+        byte = num & 0x7f
         num >>= 7
         if num:
+            # 1st bit is a flag to indecate to read more
             array.append(byte | 0x80)
         else:
             array.append(byte)
@@ -43,11 +39,8 @@ def pack(num, buf):
     return size
 
 
-def unpackb(packed):
-    return unpack(BytesIO(packed))
-
-
 def unpack(buf):
+    """Decodes the unsigned integer by UTF-7 from the buffer."""
     num = 0
     shift = 0
     byte = 0x80
@@ -61,7 +54,17 @@ def unpack(buf):
     return num
 
 
-dumps = packb
+def packb(num):
+    buf = BytesIO()
+    pack(num, buf)
+    return buf.getvalue()
+
+
+def unpackb(packed):
+    return unpack(BytesIO(packed))
+
+
 dump = pack
-loads = unpackb
+dumps = packb
 load = unpack
+loads = unpackb
