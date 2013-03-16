@@ -25,6 +25,7 @@ import re
 from setuptools import setup
 from setuptools.command.test import test
 from setuptools.extension import Extension
+import sys
 
 
 # detect the current version
@@ -48,7 +49,8 @@ except ImportError:
     ext_modules = []
     cmdclass = {}
 else:
-    ext_modules = [Extension(b'_utf7', [b'utf7.py'])]
+    b = bytes if sys.version_info < (3,) else str
+    ext_modules = [Extension(b('_utf7'), [b('utf7.py')])]
     cmdclass = {'build_ext': build_ext}
 
 
@@ -81,7 +83,7 @@ setup(
                  'Programming Language :: Python :: 3.3',
                  'Programming Language :: Python :: Implementation :: CPython',
                  'Programming Language :: Python :: Implementation :: PyPy'],
-    install_requires=['distribute'],
+    install_requires=['distribute', 'cython'],
     test_suite='utf7tests',
     tests_require=['pytest'],
 )

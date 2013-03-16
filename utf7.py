@@ -35,7 +35,8 @@ def pack(num, buf):
         else:
             array.append(byte)
             break
-    return buf.write(array)
+    buf.write(array)
+    return len(array)
 
 
 def unpack(buf):
