@@ -24,6 +24,7 @@ from __future__ import with_statement
 import re
 from setuptools import setup
 from setuptools.command.test import test
+from setuptools.extension import Extension
 
 
 # detect the current version
@@ -47,8 +48,7 @@ except ImportError:
     ext_modules = []
     cmdclass = {}
 else:
-    from setuptools.extension import Extension
-    ext_modules = [Extension('utf7', ['utf7.py'])]
+    ext_modules = [Extension('_utf7', ['utf7.py'])]
     cmdclass = {'build_ext': build_ext}
 
 

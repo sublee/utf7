@@ -25,7 +25,7 @@ __all__ = ['pack', 'unpack', 'packb', 'unpackb',
 def pack(num, buf):
     """Encodes the unsigned integer by UTF-7 to the buffer."""
     if num < 0:
-        raise ValueError('Cannot pack negative number')
+        raise OverflowError('Cannot pack negative number')
     array = []
     while num:
         byte = num & 0x7f

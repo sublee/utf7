@@ -3,7 +3,10 @@ from __future__ import with_statement
 try:
     from io import BytesIO
 except ImportError:
-    from StringIO import StringIO as BytesIO
+    try:
+        from cStringIO import StringIO as BytesIO
+    except ImportError:
+        from StringIO import StringIO as BytesIO
 
 import pytest
 
@@ -56,3 +59,8 @@ def test_aliases():
     assert utf7.loads is utf7.unpackb
     assert utf7.encode is utf7.packb
     assert utf7.decode is utf7.unpackb
+
+
+def test_negative():
+    with pytest.raises(OverflowError):
+        utf7.packb(-1)
