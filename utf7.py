@@ -17,11 +17,12 @@ except ImportError:
 
 
 __version__ = '0.9.2'
-__all__ = ['pack', 'unpack', 'packb', 'unpackb',
+__all__ = ['pack', 'unpack', 'pack_socket', 'unpack_socket',
+           'pack_bytes', 'unpack_bytes', 'packb', 'unpackb',
            'dump', 'dumps', 'load', 'loads', 'encode', 'decode']
 
 
-def pack(num, buf):
+def _pack(num, write):
     """Encodes the unsigned integer by UTF-7 to the buffer."""
     if num < 0:
         raise OverflowError('Cannot pack negative number')
@@ -35,18 +36,18 @@ def pack(num, buf):
         else:
             array.append(byte)
             break
-    buf.write(array)
+    write(array)
     return len(array)
 
 
-def unpack(buf):
+def _unpack(read):
     """Decodes the unsigned integer by UTF-7 from the buffer."""
     num = 0
     shift = 0
     byte = 0x80
     while byte & 0x80:
         try:
-            byte = ord(buf.read(1))
+            byte = ord(read(1))
         except TypeError:
             raise IOError('Buffer empty')
         num |= (byte & 0x7f) << shift
@@ -54,17 +55,35 @@ def unpack(buf):
     return num
 
 
-def packb(num):
+def pack(num, buf):
+    return _pack(num, buf.write)
+
+
+def unpack(buf):
+    return _unpack(buf.read)
+
+
+def pack_socket(num, sock):
+    return _pack(num, sock.send)
+
+
+def unpack_socket(sock):
+    return _unpack(sock.recv)
+
+
+def pack_bytes(num):
     buf = BytesIO()
     pack(num, buf)
     return buf.getvalue()
 
 
-def unpackb(packed):
+def unpack_bytes(packed):
     return unpack(BytesIO(packed))
 
 
 # aliases
+packb = pack_bytes
+unpackb = unpack_bytes
 dump = pack
 dumps = packb
 load = unpack

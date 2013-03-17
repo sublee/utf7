@@ -15,12 +15,8 @@ ctypedef unsigned char byte_t
 
 
 @cython.locals(array=bytearray, byte=byte_t, size=size_t)
-cpdef size_t pack(unsigned int num, buf)
+cpdef size_t _pack(unsigned int num, write) nogil
 
 
 @cython.locals(num=unsigned int, shift=size_t, byte=byte_t)
-cpdef unsigned int unpack(buf)
-
-
-cpdef bytes packb(unsigned int num)
-cpdef unsigned int unpackb(bytes packed)
+cpdef unsigned int _unpack(read) nogil
