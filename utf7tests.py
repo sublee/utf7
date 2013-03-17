@@ -88,7 +88,7 @@ def test_various_streams(utf7):
     server_sock.listen(5)
     client_sock.connect(server_sock.getsockname())
     server_sock.accept()
-    sock_file = client_sock.makefile()
+    sock_file = client_sock.makefile('wb')
     assert utf7.pack(65536, io.BytesIO()) == 3
     assert utf7.pack(65536, tempfile.TemporaryFile()) == 3
     assert utf7.pack(65536, sock_file) == 3
