@@ -11,7 +11,7 @@
 #include "utf7.h"
 
 
-size_t __pack(num_t num, PyObject* write) {
+PyObject* __pack(num_t num, PyObject* write) {
     size_t size = 0;
     char byte;
     char bytes[10];
@@ -25,24 +25,28 @@ size_t __pack(num_t num, PyObject* write) {
             break;
         }
     }
-    PyObject* bytearray = PyByteArray_FromStringAndSize(bytes, size);
-    PyObject_CallFunction(write, "O", bytearray);
-    return size;
+    PyObject_Del(PyObject_CallFunction(write, "s#", bytes, size));
+    return Py_BuildValue("n", size);
 }
 
 
-num_t __unpack(PyObject* read, int* err) {
-    size_t shift;
+PyObject* __unpack(PyObject* read) {
+    PyObject* str;
     char byte = 0x80;
     num_t num = 0;
+    size_t shift;
     for (shift = 0; byte & 0x80; shift += 7) {
-        byte = *(char*)PyString_AsString(PyObject_CallFunction(read, "i", 1));
+        str = PyObject_CallFunction(read, "i", 1);
+        if (!PyString_Size(str)) {
+            PyErr_SetString(PyExc_IOError, "Buffer empty");
+            return NULL;
+        }
+        byte = *(char*)PyString_AsString(str);
         if (shift == 63 && byte > 0x01) {
-            PyErr_SetString(PyExc_OverflowError, "Hello");
-            *err = 1;
-            return 0;
+            PyErr_SetString(PyExc_OverflowError, "8 bytes exceeded");
+            return NULL;
         }
         num |= (byte & 0x7f) << shift;
     }
-    return num;
+    return Py_BuildValue("k", num);
 }

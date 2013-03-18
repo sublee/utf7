@@ -13,49 +13,47 @@ import io
 
 ctypedef unsigned long num_t
 cdef extern from "utf7.h":
-    size_t __pack(num_t num, write)
-    num_t __unpack(read, int* overflowed)
+    __pack(num_t num, write)
+    __unpack(read)
 
 
 # raw
 
 
-cpdef size_t _pack(num_t num, write):
+cpdef _pack(num_t num, write):
     return __pack(num, write)
 
 
-cpdef num_t _unpack(read) except? 0:
-    #TODO: it should raise OverflowError
-    cdef int err = 0
-    return __unpack(read, &err)
+cpdef _unpack(read):
+    return __unpack(read)
 
 
 # stream
 
 
-cpdef size_t pack(num_t num, buf):
+cpdef pack(num_t num, buf):
     return _pack(num, buf.write)
 
 
-cpdef num_t unpack(buf):
+cpdef unpack(buf):
     return _unpack(buf.read)
 
 
-cpdef size_t pack_socket(num_t num, sock):
+cpdef pack_socket(num_t num, sock):
     return _pack(num, sock.send)
 
 
-cpdef num_t unpack_socket(sock):
+cpdef unpack_socket(sock):
     return _unpack(sock.recv)
 
 
-cpdef bytes pack_bytes(num_t num):
+cpdef pack_bytes(num_t num):
     buf = io.BytesIO()
     pack(num, buf)
     return buf.getvalue()
 
 
-cpdef num_t unpack_bytes(bytes packed):
+cpdef unpack_bytes(bytes packed):
     return unpack(io.BytesIO(packed))
 
 
