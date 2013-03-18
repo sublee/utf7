@@ -36,7 +36,7 @@ num_t __unpack(PyObject* read, int* err) {
     char byte = 0x80;
     num_t num = 0;
     for (shift = 0; byte & 0x80; shift += 7) {
-        byte = *PyString_AsString(PyObject_CallFunction(read, "i", 1));
+        byte = *(char*)PyString_AsString(PyObject_CallFunction(read, "i", 1));
         if (shift == 63 && byte > 0x01) {
             PyErr_SetString(PyExc_OverflowError, "Hello");
             *err = 1;
