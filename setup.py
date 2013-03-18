@@ -50,7 +50,7 @@ except ImportError:
     cmdclass = {}
 else:
     b = bytes if sys.version_info < (3,) else str
-    ext_modules = [Extension(b('_utf7'), [b('utf7.py')])]
+    ext_modules = [Extension(b('_utf7'), [b('_utf7.pyx'), b('utf7.c')])]
     cmdclass = {'build_ext': build_ext}
 
 

@@ -27,7 +27,7 @@ def _pack(num, write):
     if num < 0:
         raise OverflowError('Cannot pack negative number')
     array = bytearray()
-    while num:
+    while True:
         byte = num & 0x7f
         num >>= 7
         if num:
