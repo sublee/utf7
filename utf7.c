@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for more details.
 */
 #include <Python.h>
-#include <stdio.h>
 #include "utf7.h"
 
 

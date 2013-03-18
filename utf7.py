@@ -16,7 +16,7 @@ except ImportError:
     from StringIO import StringIO as BytesIO
 
 
-__version__ = '0.9.2'
+__version__ = '0.9.3'
 __all__ = ['pack', 'unpack', 'pack_socket', 'unpack_socket',
            'pack_bytes', 'unpack_bytes', 'packb', 'unpackb',
            'dump', 'dumps', 'load', 'loads', 'encode', 'decode']

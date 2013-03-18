@@ -3,14 +3,34 @@ r"""
 utf7
 ~~~~
 
-Encoder/decoder of an UTF-7 encoded unsigned integer. UTF-7 uint is used for
-`BinaryWriter.Write(String) <http://msdn.microsoft.com/en-us/library/
-yzxa6408.aspx>`_ in `Microsoft .NET Framework <http://www.microsoft.com/net>`_.
+Encoder/decoder of an UTF-7 encoded unsigned integer.
 
 .. sourcecode:: pycon
 
-   >>> utf7.packb(65536)
-   '\x80\x80\x04'
+   >>> utf7.pack_bytes(65535)
+   b'\xff\xff\x03'
+   >>> utf7.unpack_bytes(b'\xff\xff\x03')
+   65535
+
+UTF-7 uint is used for `BinaryWriter.Write(String)
+<http://msdn.microsoft.com/en-us/library/yzxa6408.aspx>`_ in
+`Microsoft .NET Framework <http://www.microsoft.com/net>`_. Here's an example
+of ping-pong between Python server and C# client:
+
+.. sourcecode:: python
+
+   while not socket.closed:
+       # recv ping
+       ping_size = utf7.unpack_socket(socket)
+       ping_data = socket.recv(ping_size)
+       assert ping_data == b'ping'
+       # send pong
+       pong_data = b'pong'
+       pong_size = len(pong_data)
+       utf7.pack_socket(pong_size, socket)
+       socket.send(pong_data)
+
+You can also use :mod:`_utf7` written in C to take high-speed.
 
 Links
 `````
@@ -43,13 +63,13 @@ test.run_tests = run_tests
 
 
 # cython
+b = bytes if sys.version_info < (3,) else str
 try:
     from Cython.Distutils import build_ext
 except ImportError:
-    ext_modules = []
+    ext_modules = [Extension(b('_utf7'), [b('_utf7.c'), b('utf7.c')])]
     cmdclass = {}
 else:
-    b = bytes if sys.version_info < (3,) else str
     ext_modules = [Extension(b('_utf7'), [b('_utf7.pyx'), b('utf7.c')])]
     cmdclass = {'build_ext': build_ext}
 
