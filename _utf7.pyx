@@ -10,6 +10,8 @@
 """
 import io
 
+from utf7 import __version__
+
 
 ctypedef unsigned long num_t
 cdef extern from "utf7.h":

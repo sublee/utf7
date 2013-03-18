@@ -83,7 +83,7 @@ setup(
                  'Programming Language :: Python :: 3.3',
                  'Programming Language :: Python :: Implementation :: CPython',
                  'Programming Language :: Python :: Implementation :: PyPy'],
-    install_requires=['distribute', 'cython'],
+    install_requires=['distribute'],
     test_suite='utf7tests',
     tests_require=['pytest'],
 )
