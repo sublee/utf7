@@ -8,13 +8,14 @@
     :license: BSD, see LICENSE for more details.
 */
 #include <Python.h>
+#include <stdio.h>
 #include "utf7.h"
 
 
 PyObject* __pack(num_t num, PyObject* write) {
     size_t size = 0;
-    char byte;
-    char bytes[10];
+    unsigned char byte;
+    unsigned char bytes[10];
     while (1) {
         byte = num & 0x7f;
         num >>= 7;
@@ -25,14 +26,17 @@ PyObject* __pack(num_t num, PyObject* write) {
             break;
         }
     }
-    PyObject_Del(PyObject_CallFunction(write, "s#", bytes, size));
+    PyObject* rv = PyObject_CallFunction(write, "s#", bytes, size);
+    if (rv != Py_None) {
+        Py_DECREF(rv);
+    }
     return Py_BuildValue("n", size);
 }
 
 
 PyObject* __unpack(PyObject* read) {
     PyObject* str;
-    char byte = 0x80;
+    unsigned char byte = 0x80;
     num_t num = 0;
     size_t shift;
     for (shift = 0; byte & 0x80; shift += 7) {
@@ -41,7 +45,7 @@ PyObject* __unpack(PyObject* read) {
             PyErr_SetString(PyExc_IOError, "Buffer empty");
             return NULL;
         }
-        byte = *(char*)PyString_AsString(str);
+        byte = *(unsigned char*)PyString_AsString(str);
         if (shift == 63 && byte > 0x01) {
             PyErr_SetString(PyExc_OverflowError, "8 bytes exceeded");
             return NULL;

@@ -130,6 +130,7 @@ def test_large_number():
         pytest.skip()
     with pytest.raises(OverflowError):
         _utf7.pack_bytes(2 ** 64)
-    #TODO: it should raise OverflowError but not yet
-    assert _utf7.unpack_bytes(b'\x80' * 9 + b'\x02') == 0
-    assert _utf7.unpack_bytes(b'\x80' * 18 + b'\x04') == 0
+    with pytest.raises(OverflowError):
+        _utf7.unpack_bytes(b'\x80' * 9 + b'\x02')
+    with pytest.raises(OverflowError):
+        _utf7.unpack_bytes(b'\x80' * 18 + b'\x04')
