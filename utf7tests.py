@@ -3,6 +3,7 @@ from __future__ import unicode_literals, with_statement
 import io
 import socket
 import tempfile
+import time
 
 import pytest
 
@@ -10,9 +11,11 @@ import pytest
 utf7s = [__import__('utf7')]
 # test _utf7 also if it exists
 try:
-    utf7s.append(__import__('_utf7'))
+    _utf7 = __import__('_utf7')
 except ImportError:
-    pass
+    _utf7 = None
+else:
+    utf7s.append(_utf7)
 
 
 # fixture 'utf7' will be an usable utf7 module
@@ -95,7 +98,7 @@ def test_socket(utf7):
     server_sock.bind(('127.0.0.1', 0))
     server_sock.listen(5)
     client_sock.connect(server_sock.getsockname())
-    peer_sock, addr = server_sock.accept()
+    peer_sock, peer_addr = server_sock.accept()
     assert utf7.pack_socket(65535, client_sock) == 3
     assert utf7.unpack_socket(peer_sock) == 65535
     assert utf7.pack_socket(65535, peer_sock) == 3
@@ -112,25 +115,44 @@ def test_socket(utf7):
     assert utf7.unpack_socket(peer_sock) == 5
 
 
-def test_large_number():
-    import utf7
-    assert utf7.pack_bytes(2 ** 32 - 1) == b'\xff' * 4 + b'\x0f'
-    assert utf7.pack_bytes(2 ** 32) == b'\x80' * 4 + b'\x10'
-    assert utf7.pack_bytes(2 ** 64 - 1) == b'\xff' * 9 + b'\x01'
-    assert utf7.pack_bytes(2 ** 64) == b'\x80' * 9 + b'\x02'
-    assert utf7.pack_bytes(2 ** 128) == b'\x80' * 18 + b'\x04'
-    assert utf7.unpack_bytes(b'\xff' * 4 + b'\x0f') == 2 ** 32 - 1
-    assert utf7.unpack_bytes(b'\x80' * 4 + b'\x10') == 2 ** 32
-    assert utf7.unpack_bytes(b'\xff' * 9 + b'\x01') == 2 ** 64 - 1
-    assert utf7.unpack_bytes(b'\x80' * 9 + b'\x02') == 2 ** 64
-    assert utf7.unpack_bytes(b'\x80' * 18 + b'\x04') == 2 ** 128
+def test_large_number(utf7):
+    if utf7 is _utf7:
+        with pytest.raises(OverflowError):
+            _utf7.pack_bytes(2 ** 64)
+        with pytest.raises(OverflowError):
+            _utf7.pack_bytes(2 ** 128)
+        with pytest.raises(OverflowError):
+            _utf7.unpack_bytes(b'\x80' * 9 + b'\x02')
+        with pytest.raises(OverflowError):
+            _utf7.unpack_bytes(b'\x80' * 18 + b'\x04')
+    else:
+        assert utf7.pack_bytes(2 ** 64) == b'\x80' * 9 + b'\x02'
+        assert utf7.pack_bytes(2 ** 128) == b'\x80' * 18 + b'\x04'
+        assert utf7.unpack_bytes(b'\x80' * 9 + b'\x02') == 2 ** 64
+        assert utf7.unpack_bytes(b'\x80' * 18 + b'\x04') == 2 ** 128
+
+
+def test_gevent_socket(utf7):
+    delay = 0.001
     try:
-        import _utf7
+        import gevent
     except ImportError:
         pytest.skip()
-    with pytest.raises(OverflowError):
-        _utf7.pack_bytes(2 ** 64)
-    with pytest.raises(OverflowError):
-        _utf7.unpack_bytes(b'\x80' * 9 + b'\x02')
-    with pytest.raises(OverflowError):
-        _utf7.unpack_bytes(b'\x80' * 18 + b'\x04')
+    from gevent.socket import socket, AF_INET, SOCK_STREAM
+    server_sock = socket(AF_INET, SOCK_STREAM)
+    client_sock = socket(AF_INET, SOCK_STREAM)
+    server_sock.bind(('127.0.0.1', 0))
+    server_sock.listen(5)
+    client_sock.connect(server_sock.getsockname())
+    peer_sock, peer_addr = server_sock.accept()
+    def send():
+        peer_sock.send('x')
+        for b in utf7.pack_bytes(2 ** 64 - 1):
+            gevent.sleep(delay)
+            peer_sock.send(b)
+    def recv():
+        assert client_sock.recv(1) == 'x'
+        t = time.time()
+        assert utf7.unpack_socket(client_sock) == 2 ** 64 - 1
+        assert time.time() - t >= delay * 10
+    gevent.joinall([gevent.spawn(send), gevent.spawn(recv)], raise_error=True)

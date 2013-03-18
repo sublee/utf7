@@ -27,9 +27,7 @@ PyObject* __pack(num_t num, PyObject* write) {
         }
     }
     PyObject* rv = PyObject_CallFunction(write, "s#", bytes, size);
-    if (rv != Py_None) {
-        Py_DECREF(rv);
-    }
+    Py_DECREF(rv);
     return Py_BuildValue("n", size);
 }
 
