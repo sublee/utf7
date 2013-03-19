@@ -30,7 +30,11 @@ of ping-pong between Python server and C# client:
        utf7.pack_socket(pong_size, socket)
        socket.send(pong_data)
 
-You can also use :mod:`_utf7` written in C to take high-speed.
+You can also use ``_utf7`` written in C to take high-speed:
+
+.. sourcecode:: python
+
+   import _utf7 as utf7
 
 Links
 `````
