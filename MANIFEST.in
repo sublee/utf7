@@ -1,1 +1,2 @@
 include _utf7.c
+include utf7.h
